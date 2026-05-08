@@ -1,0 +1,52 @@
+name: Lint Code
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint-python:
+    name: Lint Python Files
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install pylint
+        run: pip install pylint
+
+      - name: Lint Python files
+        run: |
+          pylint --disable=R,C server/djangoapp/models.py \
+            server/djangoapp/views.py \
+            server/djangoapp/restapis.py \
+            server/djangoapp/microservices/app.py || true
+
+  lint-javascript:
+    name: Lint JavaScript Files
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install ESLint
+        run: npm install eslint --save-dev
+
+      - name: Lint JavaScript files
+        run: |
+          npx eslint server/database/app.js \
+            server/database/dealership.js \
+            server/database/review.js \
+            --no-eslintrc -c '{"env":{"node":true,"es6":true},"parserOptions":{"ecmaVersion":2020}}' || true
